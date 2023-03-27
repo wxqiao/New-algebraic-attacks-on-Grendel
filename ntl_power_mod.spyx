@@ -1,0 +1,34 @@
+# distutils: libraries = ntl gmp m
+# distutils: language = c++
+
+include 'sage/libs/ntl/misc.pxi'
+include 'sage/libs/ntl/decl.pxi'
+
+from sage.libs.ntl.ntl_ZZ cimport ntl_ZZ
+from sage.libs.ntl.ntl_ZZ_p cimport ntl_ZZ_p
+from sage.libs.ntl.ntl_ZZ_pContext cimport ntl_ZZ_pContext_class
+from sage.libs.ntl.ntl_ZZ_pContext import ntl_ZZ_pContext
+from sage.libs.ntl.ntl_ZZ_pX import ntl_ZZ_pX
+
+from sage.libs.ntl.ntl_ZZ_pX cimport ntl_ZZ_pX
+
+from sage.rings.polynomial.polynomial_modn_dense_ntl import Polynomial_dense_mod_n as poly_modn_dense
+
+cdef extern from "NTL/BasicThreadPool.h":
+    void SetNumThreads(long n)
+    long AvailableThreads()
+
+def ntl_set_threads(n):
+    SetNumThreads(n)
+
+def ntl_get_threads():
+    return AvailableThreads()
+
+def ntl_power_mod(P, n, M):
+    cdef ntl_ZZ_pX p = P.ntl_ZZ_pX()
+    cdef ntl_ZZ_pX m = M.ntl_ZZ_pX()
+    cdef ZZ_pX_Modulus_c mod
+    ZZ_pX_Modulus_build(mod, m.x)
+    r = p._new()
+    ZZ_pX_PowerMod_pre(r.x, p.x, ntl_ZZ(n).x, mod)
+    return poly_modn_dense(P.parent(), r, construct=True)

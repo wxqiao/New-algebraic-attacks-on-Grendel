@@ -1,0 +1,10 @@
+p=18446744073709551557
+Fp=GF(p)
+security_level=32
+alpha=3
+m=3
+c=1
+
+N=6
+
+
